@@ -1,3 +1,8 @@
 retry
 python-telegram-bot
 python-telegram-bot[ext]
+flask
+quart
+gunicorn
+uvicorn
+hypercorn

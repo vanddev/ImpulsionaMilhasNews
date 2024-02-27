@@ -80,7 +80,6 @@ async def get_last_command(context: ContextTypes.DEFAULT_TYPE) -> str:
 
 
 if __name__ == '__main__':
-    # asyncio.run(main())
     application = (
         ApplicationBuilder().token(TOKEN).read_timeout(10).write_timeout(10).connect_timeout(10).pool_timeout(
             10).build())
