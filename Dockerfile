@@ -10,6 +10,12 @@ FROM python:${PYTHON_VERSION}-slim as base
 # Prevents Python from writing pyc files.
 ENV PYTHONDONTWRITEBYTECODE=1
 
+ARG WEBHOOK_URL
+ARG BOT_TOKEN
+
+ENV WEBHOOK_URL=$WEBHOOK_URL
+ENV BOT_TOKEN=$BOT_TOKEN
+
 # Keeps Python from buffering stdout and stderr to avoid situations where
 # the application crashes without emitting any logs due to buffering.
 ENV PYTHONUNBUFFERED=1
@@ -42,11 +48,13 @@ WORKDIR /app
 # Copy the source code into the container.
 COPY . /app
 
-RUN pip install -r requirements.txt
+RUN #pip install -r requirements.txt
 # Expose the port that the application listens on.
 EXPOSE 8000
 
 ENV HYPERCORN_CMD="hypercorn app:app -c hypercorn_config.py -b 0.0.0.0:8000"
 
 # Run the application.
-CMD ["sh", "-c", "$HYPERCORN_CMD"]
+#CMD ["sh", "-c", "$HYPERCORN_CMD"]
+
+CMD ["python", "main.py"]

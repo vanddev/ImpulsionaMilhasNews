@@ -10,7 +10,7 @@ from telegram.ext import Application, CallbackContext, CommandHandler, MessageHa
 
 app = Quart(__name__)
 
-TOKEN = os.getenv('bot_token', '')
+TOKEN = os.getenv('BOT_TOKEN', '')
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
