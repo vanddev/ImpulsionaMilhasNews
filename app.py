@@ -1,5 +1,5 @@
 import asyncio
-
+import os
 from quart import Quart, request
 from retry import retry
 import logging
@@ -10,13 +10,13 @@ from telegram.ext import Application, CallbackContext, CommandHandler, MessageHa
 
 app = Quart(__name__)
 
-TOKEN = "6907228198:AAEBGml4pXqomfjRYBNnAcLkPxA6OluuPq4"
+TOKEN = os.getenv('bot_token', '')
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
-logging.getLogger('httpx').setLevel(logging.WARNING)
-logger = logging.getLogger(__name__)
+
+logger = logging.getLogger('quart.app')
 application = (Application.builder().token(TOKEN).read_timeout(10)
                .write_timeout(10).connect_timeout(10).pool_timeout(10).build())
 
@@ -38,39 +38,48 @@ async def handle_message(update: Update, context: CallbackContext) -> None:
     # await update.message.reply_text('You said: ' + update.message.text)
 
 
-@retry(NetworkError, tries=3)
-async def start_application(appli):
-    await appli.bot.setWebhook(url='https://goat-genuine-logically.ngrok-free.app/' + TOKEN)
-
-
 @app.route('/' + TOKEN, methods=['POST'])
 async def webhook() -> str:
     if request.method == "POST":
         update = Update.de_json(await request.get_json(force=True), application.bot)
-        application.update_queue.put(update)
-        # start(update)
-        # asyncio.run(application.process_update(update))
+        logger.info(f"Update get {update}")
+        await application.process_update(update)
     return "ok"
 
 
 @app.route('/hello')
 async def hello():
+    logger.info('Entrou no Hello')
     return 'Hello, World!'
 
 
-def run_asyncio_loop():
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(application.run_polling())
-    loop.close()
+async def run_telegram_bot():
+    # Use this function to start the bot
+    await application.initialize()
+    await application.bot.setWebhook(url=os.getenv('WEBHOOK_URL', '') + TOKEN)
+    await application.start()
+
+
+@app.before_serving
+async def before_serving():
+    # Run the Telegram bot in a background task using Quart's event loop
+    await asyncio.create_task(run_telegram_bot())
+
+
+@app.after_serving
+async def after_serving():
+    await application.stop()
+    await application.shutdown()
 
 
 application.add_handler(CommandHandler('start', start))
 application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-if __name__ == '__main__':
-    from threading import Thread
-    t = Thread(target=run_asyncio_loop)
-    t.start()
+
+def main():
     # Start Flask application
     app.run(port=5000)
+
+
+if __name__ == '__main__':
+    main()
