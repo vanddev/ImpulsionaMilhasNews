@@ -59,7 +59,7 @@ async def broadcast() -> tuple[str, int]:
     logger.debug(f"Broadcasting the message {payload}")
     chats = db.get_values()
     for chat in chats:
-        application.bot.send_message(chat_id=chat['chat_id'], text=payload['message'])
+        await application.bot.send_message(chat_id=chat['chat_id'], text=payload['message'])
     return "ok", 200
 
 
