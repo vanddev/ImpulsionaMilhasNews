@@ -60,5 +60,3 @@ ENV HYPERCORN_CMD="hypercorn app:app -c hypercorn_config.py -b 0.0.0.0:8000"
 
 # Run the application.
 CMD ["sh", "-c", "$HYPERCORN_CMD"]
-#
-#CMD ["python", "main.py"]

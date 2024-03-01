@@ -1,6 +1,8 @@
 import asyncio
 import json
 import os
+from typing import Tuple
+
 from quart import Quart, request
 from retry import retry
 import logging
@@ -42,13 +44,23 @@ async def handle_message(update: Update, context: CallbackContext) -> None:
 
 
 @app.route('/' + TOKEN, methods=['POST'])
-async def webhook() -> str:
+async def webhook() -> tuple[str, int]:
     if request.method == "POST":
         update = Update.de_json(await request.get_json(force=True), application.bot)
         logger.debug(f"Update {update}")
         await application.process_update(update)
         db.save_chat_if_not_exist({'chat_id': update.effective_chat.id})
-    return "ok"
+    return "ok", 200
+
+
+@app.route('broadcast', methods=['POST'])
+async def broadcast() -> tuple[str, int]:
+    payload = await request.get_json(force=True)
+    logger.debug(f"Broadcasting the message {payload}")
+    chats = db.get_values()
+    for chat in chats:
+        application.bot.send_message(chat_id=chat['chat_id'], text=payload['message'])
+    return "ok", 200
 
 
 @app.route('/health')
