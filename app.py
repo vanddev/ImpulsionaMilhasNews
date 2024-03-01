@@ -53,7 +53,7 @@ async def webhook() -> tuple[str, int]:
     return "ok", 200
 
 
-@app.route('broadcast', methods=['POST'])
+@app.route('/broadcast', methods=['POST'])
 async def broadcast() -> tuple[str, int]:
     payload = await request.get_json(force=True)
     logger.debug(f"Broadcasting the message {payload}")
