@@ -3,3 +3,4 @@ python-telegram-bot
 python-telegram-bot[ext]
 quart
 hypercorn
+firebase_admin

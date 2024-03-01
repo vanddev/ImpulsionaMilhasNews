@@ -1,8 +1,10 @@
 import asyncio
+import json
 import os
 from quart import Quart, request
 from retry import retry
 import logging
+import firebase as db
 
 from telegram import Update
 from telegram.error import NetworkError
@@ -11,6 +13,7 @@ from telegram.ext import Application, CallbackContext, CommandHandler, MessageHa
 app = Quart(__name__)
 
 TOKEN = os.getenv('BOT_TOKEN', '')
+WEBHOOK = os.getenv('WEBHOOK_URL', '')
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
@@ -42,26 +45,27 @@ async def handle_message(update: Update, context: CallbackContext) -> None:
 async def webhook() -> str:
     if request.method == "POST":
         update = Update.de_json(await request.get_json(force=True), application.bot)
-        logger.info(f"Update get {update}")
+        logger.debug(f"Update {update}")
         await application.process_update(update)
+        db.save_chat_if_not_exist({'chat_id': update.effective_chat.id})
     return "ok"
 
 
-@app.route('/hello')
+@app.route('/health')
 async def hello():
-    logger.info('Entrou no Hello')
-    return 'Hello, World!'
+    return 'The application is healthy!'
 
 
 async def run_telegram_bot():
     # Use this function to start the bot
     await application.initialize()
-    await application.bot.setWebhook(url=os.getenv('WEBHOOK_URL', '') + TOKEN)
+    await application.bot.setWebhook(url=WEBHOOK + TOKEN)
     await application.start()
 
 
 @app.before_serving
 async def before_serving():
+    db.start()
     # Run the Telegram bot in a background task using Quart's event loop
     await asyncio.create_task(run_telegram_bot())
 
