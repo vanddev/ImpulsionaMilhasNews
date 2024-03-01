@@ -12,9 +12,13 @@ ENV PYTHONDONTWRITEBYTECODE=1
 
 ARG WEBHOOK_URL
 ARG BOT_TOKEN
+ARG FIREBASE_DB_URL
+ARG FIREBASE_SDK_TOKEN
 
 ENV WEBHOOK_URL=$WEBHOOK_URL
 ENV BOT_TOKEN=$BOT_TOKEN
+ENV FIREBASE_DB_URL=$FIREBASE_DB_URL
+ENV FIREBASE_SDK_TOKEN=$FIREBASE_SDK_TOKEN
 
 # Keeps Python from buffering stdout and stderr to avoid situations where
 # the application crashes without emitting any logs due to buffering.
