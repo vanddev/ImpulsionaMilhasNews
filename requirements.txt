@@ -1,6 +1,7 @@
 retry
 python-telegram-bot
 python-telegram-bot[ext]
+requests
 quart
 hypercorn
 firebase_admin

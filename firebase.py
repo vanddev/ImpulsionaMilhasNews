@@ -1,18 +1,17 @@
-import json
 import os
+
 import firebase_admin
+import requests
 from firebase_admin import credentials
 from firebase_admin import db
 
-FIREBASE_SDK_TOKEN = os.getenv('FIREBASE_SDK_TOKEN', '')
+CREDENTIAL_LOCATION = os.getenv('FIREBASE_CREDENTIAL_LOCATION', '')
 DATABASE_URL = os.getenv('FIREBASE_DB_URL', '')
-TOKEN_JSON = 'token.json'
 
 
 def start():
-    with open(TOKEN_JSON, 'w') as f:
-        f.write(FIREBASE_SDK_TOKEN)
-    cred = credentials.Certificate(TOKEN_JSON)
+    resp = requests.get(CREDENTIAL_LOCATION)
+    cred = credentials.Certificate(resp.json())
     firebase_admin.initialize_app(cred, {'databaseURL': DATABASE_URL})
 
 
@@ -52,4 +51,4 @@ def __get_ref():
 
 if __name__ == '__main__':
     start()
-    print(save_chat_if_not_exist({"chat_id": 'abcqwert'}))
+    print(get_data())
