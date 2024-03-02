@@ -98,7 +98,7 @@ async def subscribed_broadcast():
     chats = db.get_values()
     chats_subscribed = list(filter(lambda item: payload['airline_group'] in item['subscribed_to'], chats))
     for chat in chats_subscribed:
-        await application.bot.send_message(chat_id=chat, text=payload['message'])
+        await application.bot.send_message(chat_id=chat['chat_id'], text=payload['message'])
 
 
 @app.route('/health')
