@@ -46,9 +46,11 @@ async def handle_message(update: Update, context: CallbackContext) -> None:
 async def subscribe(update: Update, context: CallbackContext) -> None:
     airline_group = context.args[0]
     chat = filter_chat_by_id(update.effective_chat.id, db.get_chats())
-    subscribed_to = chat[1]['subscribed_to']
-    subscribed_to.append(airline_group)
-    db.update(chat[0], {'subscribed_to': subscribed_to})
+    subscribed_to = chat[1]['subscribed_to'] if 'subscribed_to' in chat[1] else []
+    if airline_group not in subscribed_to:
+        subscribed_to.append(airline_group)
+        db.update(chat[0], {'subscribed_to': subscribed_to})
+    await update.message.reply_text(f"Now you're subscribed for received news about {airline_group}")
 
 
 def filter_chat_by_id(chat_id, chats) -> tuple[str, dict]:
