@@ -39,8 +39,22 @@ async def start(update: Update, context: CallbackContext):
 
 @retry(NetworkError, tries=3)
 async def handle_message(update: Update, context: CallbackContext) -> None:
-    await context.bot.send_message(chat_id=update.effective_chat.id, text=f"You said: {update.message.text}")
-    # await update.message.reply_text('You said: ' + update.message.text)
+    await update.message.reply_text('You said: ' + update.message.text)
+
+
+@retry(NetworkError, tries=3)
+async def subscribe(update: Update, context: CallbackContext) -> None:
+    airline_group = context.args[0]
+    chat = filter_chat_by_id(update.effective_chat.id, db.get_chats())
+    subscribed_to = chat[1]['subscribed_to']
+    subscribed_to.append(airline_group)
+    db.update(chat[0], {'subscribed_to': subscribed_to})
+
+
+def filter_chat_by_id(chat_id, chats) -> tuple[str, dict]:
+    for key, value in chats.items():
+        if value['chat_id'] == chat_id:
+            return key, value
 
 
 @app.route('/' + TOKEN, methods=['POST'])
@@ -57,10 +71,32 @@ async def webhook() -> tuple[str, int]:
 async def broadcast() -> tuple[str, int]:
     payload = await request.get_json(force=True)
     logger.debug(f"Broadcasting the message {payload}")
+    error_validation = required_field_validation('message', payload)
+    if error_validation:
+        return error_validation, 400
     chats = db.get_values()
     for chat in chats:
         await application.bot.send_message(chat_id=chat['chat_id'], text=payload['message'])
     return "ok", 200
+
+
+def required_field_validation(field, payload):
+    if field not in payload:
+        return f"field {field} is required"
+
+
+@app.route('/broadcast/subscribed', methods=['POST'])
+async def subscribed_broadcast():
+    payload = await request.get_json(force=True)
+    errors_validation = [required_field_validation('message', payload),
+                         required_field_validation('airline_group', payload)]
+    if errors_validation and not (all(error is None for error in errors_validation)):
+        return errors_validation, 400
+    logger.debug(f"Broadcasting the message {payload}")
+    chats = db.get_values()
+    chats_subscribed = list(filter(lambda item: payload['airline_group'] in item['subscribed_to'], chats))
+    for chat in chats_subscribed:
+        await application.bot.send_message(chat_id=chat, text=payload['message'])
 
 
 @app.route('/health')
@@ -89,6 +125,7 @@ async def after_serving():
 
 
 application.add_handler(CommandHandler('start', start))
+application.add_handler(CommandHandler('subscribe', subscribe))
 application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
 

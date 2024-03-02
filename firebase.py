@@ -22,18 +22,19 @@ def start():
     logger.info("Firebase initialized")
 
 
-def get_data() -> dict:
+def get_chats() -> dict:
     return __get_ref().get()
 
 
 def get_values() -> list[Any]:
-    return list(get_data().values()) if get_data() else []
+    return list(get_chats().values()) if get_chats() else []
 
 
 def save(data: dict):
     logger.debug(f"Saving data on firebase db: {data}")
     __get_ref().push().set(data)
     logger.debug(f"Data saved: {data}")
+
 
 def update(key, data: dict):
     __get_ref().child(key).update(data)
@@ -52,8 +53,3 @@ def save_chat_if_not_exist(chat):
 
 def __get_ref():
     return db.reference('/chats')
-
-
-if __name__ == '__main__':
-    start()
-    print(get_data())
