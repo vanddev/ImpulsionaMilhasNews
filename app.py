@@ -99,7 +99,7 @@ async def subscribed_broadcast():
     chats_subscribed = list(filter(lambda item: payload['airline_group'] in item['subscribed_to'], chats))
     for chat in chats_subscribed:
         await application.bot.send_message(chat_id=chat['chat_id'], text=payload['message'])
-
+    return "ok", 200
 
 @app.route('/health')
 async def hello():
