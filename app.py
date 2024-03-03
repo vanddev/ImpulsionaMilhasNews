@@ -101,6 +101,7 @@ async def subscribed_broadcast():
         await application.bot.send_message(chat_id=chat['chat_id'], text=payload['message'])
     return "ok", 200
 
+
 @app.route('/health')
 async def hello():
     return 'The application is healthy!'
