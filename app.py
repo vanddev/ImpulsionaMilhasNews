@@ -1,19 +1,16 @@
 import asyncio
-import json
+import logging
 import os
 from enum import Enum
-from typing import Tuple
 
 from quart import Quart, request
 from retry import retry
-import logging
-
-import api_client
-import firebase as db
-
 from telegram import Update
 from telegram.error import NetworkError
 from telegram.ext import Application, CallbackContext, CommandHandler, MessageHandler, filters
+
+import api_client
+import firebase as db
 
 app = Quart(__name__)
 
@@ -62,7 +59,8 @@ async def ultima_promocao(update: Update, context: CallbackContext, airline=None
     offers = api_client.get_offers_by_ffp(airline)
     for offer in offers:
         await context.bot.send_message(chat_id=update.effective_chat.id,
-                                       text=f"{offer['description']}\r\n\rOferta disponivel até {offer['deadline']}")
+                                       text=f"{offer['description']}\r\n\r\n\r\n"
+                                            f"**Oferta disponivel até {offer['deadline']}**")
     if not has_args:
         await context.bot.send_message(chat_id=update.effective_chat.id,
                                        text=f"Você também pode pesquisar informando diretamente a companhia aerea no "
