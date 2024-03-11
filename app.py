@@ -1,11 +1,14 @@
 import asyncio
 import json
 import os
+from enum import Enum
 from typing import Tuple
 
 from quart import Quart, request
 from retry import retry
 import logging
+
+import api_client
 import firebase as db
 
 from telegram import Update
@@ -26,10 +29,44 @@ application = (Application.builder().token(TOKEN).read_timeout(10)
                .write_timeout(10).connect_timeout(10).pool_timeout(10).build())
 
 
+class COMMANDS(Enum):
+    ULTIMA_PROMOCAO = 1
+
+
+async def update_command_track(context: CallbackContext, command: COMMANDS):
+    context.user_data["LAST_COMMAND"] = command
+
+
+async def get_last_command(context: CallbackContext) -> str:
+    return context.user_data.get("LAST_COMMAND")
+
+
 @retry(NetworkError, tries=3)
 async def prev_ultima_promocao(update: Update, context: CallbackContext):
+    await update_command_track(context, COMMANDS.ULTIMA_PROMOCAO)
+    if not context.args:
+        await context.bot.send_message(chat_id=update.effective_chat.id,
+                                       text="Informe um programa de milhas: SMILES, LATAM PASS, TUDOAZUL")
+    else:
+        await ultima_promocao(update, context)
+
+
+@retry(NetworkError, tries=3)
+async def ultima_promocao(update: Update, context: CallbackContext, airline=None):
+    has_args = False
+    if not airline:
+        has_args = True
+        airline = context.args[0]
     await context.bot.send_message(chat_id=update.effective_chat.id,
-                                   text="Informe um programa de milhas: SMILES, LATAM PASS, TUDOAZUL")
+                                   text=f"Procurando promoções da {airline}")
+    offers = api_client.get_offers_by_ffp(airline)
+    for offer in offers:
+        await context.bot.send_message(chat_id=update.effective_chat.id,
+                                       text=f"{offer['description']}\r\n\rOferta disponivel até {offer['deadline']}")
+    if not has_args:
+        await context.bot.send_message(chat_id=update.effective_chat.id,
+                                       text=f"Você também pode pesquisar informando diretamente a companhia aerea no "
+                                            f"comando, ex: /ultima_promocao {airline}")
 
 
 @retry(NetworkError, tries=3)
@@ -129,6 +166,7 @@ async def after_serving():
 
 application.add_handler(CommandHandler('start', start))
 application.add_handler(CommandHandler('subscribe', subscribe))
+application.add_handler(CommandHandler('offer', prev_ultima_promocao))
 application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
 
