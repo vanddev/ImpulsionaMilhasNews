@@ -59,8 +59,9 @@ async def ultima_promocao(update: Update, context: CallbackContext, airline=None
     offers = api_client.get_offers_by_ffp(airline)
     for offer in offers:
         await context.bot.send_message(chat_id=update.effective_chat.id,
+                                       parse_mode='HTML',
                                        text=f"{offer['description']}\r\n\r\n\r\n"
-                                            f"**Oferta disponivel até {offer['deadline']}**")
+                                            f"<b>Oferta disponivel até {offer['deadline']}</b>")
     if not has_args:
         await context.bot.send_message(chat_id=update.effective_chat.id,
                                        text=f"Você também pode pesquisar informando diretamente a companhia aerea no "
