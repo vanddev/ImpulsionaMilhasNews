@@ -1,3 +1,3 @@
-loglevel = "debug"
+loglevel = "info"
 accesslog = "-"
 errorlog = "-"

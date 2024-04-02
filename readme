@@ -1,4 +1,0 @@
-gunicorn -w 4 -k uvicorn.workers.UvicornWorker your_script_name:app
-
-Replace your_script_name with the name of your Python script.
-

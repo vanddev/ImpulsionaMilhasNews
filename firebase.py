@@ -26,6 +26,17 @@ def get_chats() -> dict:
     return __get_ref().get()
 
 
+def get_chat_by_id(chat_id) -> tuple[str, dict]:
+    chats = get_chats()
+    for key, value in chats.items():
+        if value['chat_id'] == chat_id:
+            return key, value
+
+
+def get_chats_by_subscription(subscribed_to) -> []:
+    return list(filter(lambda item: subscribed_to in item['subscribed_to'], get_values()))
+
+
 def get_values() -> list[Any]:
     return list(get_chats().values()) if get_chats() else []
 
