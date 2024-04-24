@@ -28,16 +28,16 @@ WORKDIR /app
 
 # Create a non-privileged user that the app will run under.
 # See https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#user
-ARG UID=10001
-RUN adduser \
-    --disabled-password \
-    --shell "/sbin/nologin" \
-    --uid "${UID}" \
-    appuser
+# ARG UID=10001
+# RUN adduser \
+#     --disabled-password \
+#     --shell "/sbin/nologin" \
+#     --uid "${UID}" \
+#     appuser
 
 # Switch to the non-privileged user to run the application.
-ENV PATH="/home/appuser/.local/bin:${PATH}"
-USER appuser
+# ENV PATH="/home/appuser/.local/bin:${PATH}"
+# USER appuser
 
 # Copy the source code into the container.
 COPY . /app
