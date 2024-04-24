@@ -42,7 +42,8 @@ WORKDIR /app
 # Copy the source code into the container.
 COPY . /app
 
-RUN pip install --user -r requirements.txt
+RUN pip install -r requirements.txt
+# RUN pip install --user -r requirements.txt
 # Expose the port that the application listens on.
 EXPOSE 8000
 
