@@ -51,9 +51,9 @@ async def subscribed_broadcast():
     # if errors_validation and not (all(error is None for error in errors_validation)):
     #     return errors_validation, 400
     logger.info(f"Broadcasting the message {payload}")
-    chats_subscribed = db.get_chats_by_subscription(group)
-    for chat in chats_subscribed:
-        send_offers(chat["chat_id"], payload)
+    # chats_subscribed = db.get_chats_by_subscription(group)
+    # for chat in chats_subscribed:
+    #     send_offers(chat["chat_id"], payload)
     return "ok", 200
 
 
