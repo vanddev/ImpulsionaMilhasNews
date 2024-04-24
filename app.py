@@ -53,9 +53,14 @@ async def subscribed_broadcast():
     logger.debug(f"Broadcasting the message {payload}")
     chats_subscribed = db.get_chats_by_subscription(group)
     for chat in chats_subscribed:
-        async_thread.submit_async(telegram_bot.send_message(chat_id=chat['chat_id'],
-                                                            text=telegram_bot.format_offer_message(payload)))
+        send_offers(chat["chat_id"], payload)
     return "ok", 200
+
+
+def send_offers(chat_id, offers):
+    for offer in offers:
+        async_thread.submit_async(telegram_bot.send_message(chat_id=chat_id,
+                                                            text=telegram_bot.format_offer_message(offer)))
 
 
 @app.route('/health')

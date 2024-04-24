@@ -1,5 +1,6 @@
 import asyncio
 import threading
+import time
 
 
 def _start_async():
@@ -15,6 +16,7 @@ _loop = _start_async()
 # complete. Returns a concurrent.futures.Future which *may* be used to
 # wait for and retrieve the result (or exception, if one was raised)
 def submit_async(awaitable):
+    time.sleep(3)
     return asyncio.run_coroutine_threadsafe(awaitable, _loop)
 
 
