@@ -37,23 +37,14 @@ async def broadcast() -> tuple[str, int]:
     return "ok", 200
 
 
-def required_field_validation(field, payload):
-    if field not in payload:
-        return f"field {field} is required"
-
-
 @app.route('/broadcast/subscribed', methods=['POST'])
 async def subscribed_broadcast():
     payload = await request.get_json(force=True)
     group = request.args.get('group')
-    # errors_validation = [required_field_validation('message', payload),
-    #                      required_field_validation('airline_group', payload)]
-    # if errors_validation and not (all(error is None for error in errors_validation)):
-    #     return errors_validation, 400
     logger.info(f"Broadcasting the message {payload}")
-    # chats_subscribed = db.get_chats_by_subscription(group)
-    # for chat in chats_subscribed:
-    #     send_offers(chat["chat_id"], payload)
+    chats_subscribed = db.get_chats_by_subscription(group)
+    for chat in chats_subscribed:
+        send_offers(chat["chat_id"], payload)
     return "ok", 200
 
 
