@@ -67,8 +67,6 @@ async def handle_message(update: Update, context: CallbackContext) -> None:
     command_running = __get_last_command(context)
     if command_running:
         await globals()[command_running](update, context, update.message.text.lower())
-    else:
-        await update.message.reply_text('You said: ' + update.message.text)
 
 
 @retry(NetworkError, tries=3)
@@ -125,7 +123,7 @@ async def error_handler(update, context):
 
 @retry(NetworkError, tries=3)
 async def start(update: Update, context: CallbackContext):
-    await update.message.reply_text('Hello, I am your bot!')
+    await update.message.reply_text('Oi! Aqui você pode acompanhar as ofertas de transferencia de milha, aproveite para viajar bastante.')
 
 
 async def send_message(chat_id, text):
